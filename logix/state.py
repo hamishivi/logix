@@ -120,12 +120,16 @@ class LogIXState:
 
         for module_name, module_state in self.covariance_state.items():
             for mode, cov in module_state.items():
+                # edit: trace() does not work at half precision,
+                # so we convert to float32, then back.
+                cov_dtype = cov.dtype
+                cov = cov.to(torch.float32)
                 damping_module = (
                     0.1 * torch.trace(cov) / cov.size(0) if damping is None else damping
                 )
                 self.covariance_inverse_state[module_name][mode] = torch.inverse(
                     cov + damping_module * torch.eye(cov.size(0)).to(device=cov.device)
-                )
+                ).to(dtype=cov_dtype)
 
     def get_covariance_state(self) -> Dict[str, Dict[str, torch.Tensor]]:
         """
