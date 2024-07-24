@@ -148,10 +148,12 @@ class InfluenceFunction:
             ).pop("influence")
             for key in total_influence.keys():
                 tgt_norm_key = tgt_norm if influence_groups is None else tgt_norm[key]
+                # add a small value to avoid division by zero
+                denom = torch.sqrt(tgt_norm_key.unsqueeze(0)) + 1e-8
                 # move to the same device
                 if tgt_norm_key.device != total_influence[key].device:
                     tgt_norm_key = tgt_norm_key.to(device=total_influence[key].device)
-                total_influence[key] /= torch.sqrt(tgt_norm_key.unsqueeze(0))
+                total_influence[key] /= denom
         elif mode == "l2":
             tgt_norm = self.compute_self_influence(
                 tgt_log,
