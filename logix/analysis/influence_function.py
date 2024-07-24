@@ -153,7 +153,7 @@ class InfluenceFunction:
                 # move to the same device
                 if tgt_norm_key.device != total_influence[key].device:
                     tgt_norm_key = tgt_norm_key.to(device=total_influence[key].device)
-                total_influence[key] /= denom
+                total_influence[key] /= denom.to(device=total_influence[key].device)
         elif mode == "l2":
             tgt_norm = self.compute_self_influence(
                 tgt_log,
